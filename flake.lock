@@ -1,0 +1,82 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1745794561,
+        "narHash": "sha256-T36rUZHUART00h3dW4sV5tv4MrXKT7aWjNfHiZz7OHg=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "5461b7fa65f3ca74cef60be837fd559a8918eaa0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-semver_2_13": {
+      "locked": {
+        "lastModified": 1616660301,
+        "narHash": "sha256-xilZzwijuplxa04krMBsvDwEAsXkvGpDrLSmv3LxSdo=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "92a955754d197a5161ab4c3ce5193b4c4eb1edcc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "92a955754d197a5161ab4c3ce5193b4c4eb1edcc",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "pulpissimo": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "nixpkgs-semver_2_13": "nixpkgs-semver_2_13"
+      },
+      "locked": {
+        "lastModified": 1745962257,
+        "narHash": "sha256-46gjYi2IsNO22F/kdyRgh/0Nw618DEQNN7yMnu9JWfA=",
+        "owner": "yehorb",
+        "repo": "pulpissimo-flake",
+        "rev": "b155128375bdebab03d3f8b3dfdbcf7eaab4f802",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yehorb",
+        "repo": "pulpissimo-flake",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": [
+          "pulpissimo",
+          "nixpkgs"
+        ],
+        "pulpissimo": "pulpissimo",
+        "systems": "systems"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
