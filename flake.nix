@@ -36,7 +36,9 @@
         }
       );
 
-      packages = forEachSystem (system: { });
+      packages = forEachSystem (system: {
+        libunwind = self.pkgsCross.${system}.llvmPackages.libunwind;
+      });
 
       devShells = forEachSystem (system: {
         default =
