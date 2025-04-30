@@ -30,15 +30,26 @@
         default =
           let
             pkgs = self.pkgs.${system};
+            crossSystem = nixpkgs.lib.systems.examples.riscv64-embedded;
             pkgsCross = import nixpkgs {
               inherit system;
-              crossSystem = nixpkgs.lib.systems.examples.riscv64-embedded;
+              inherit crossSystem;
               config = { };
               overlays = [ self.overlays.default ];
             };
             stdenvCross = pkgsCross.clangStdenv;
           in
-          pkgsCross.mkShell.override { stdenv = stdenvCross; } { };
+          pkgsCross.mkShell.override { stdenv = stdenvCross; } {
+            hardeningDisable = [ "all" ];
+            env = {
+              RISCV_TARGET = crossSystem.config;
+              LLVM_INSTALL_DIR = stdenvCross.cc;
+              RISCV_PREFIX = "${stdenvCross.cc}/bin/${crossSystem.config}-";
+            };
+            shellHook = ''
+              export PS1="(ara) $PS1"
+            '';
+          };
       });
 
       overlays.default = final: prev: {
