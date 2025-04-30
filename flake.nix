@@ -47,10 +47,14 @@
           in
           pkgsCross.mkShell {
             hardeningDisable = [ "all" ];
+            packages = [
+              pkgs.spike
+            ];
             env = {
               RISCV_TARGET = crossSystem.config;
               LLVM_INSTALL_DIR = stdenvCross.cc;
               RISCV_PREFIX = "${stdenvCross.cc}/bin/${crossSystem.config}-";
+              RISCV_SIM = pkgs.lib.meta.getExe' pkgs.spike "spike";
             };
             shellHook = ''
               export PS1="(ara) $PS1"
