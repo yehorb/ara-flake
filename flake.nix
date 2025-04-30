@@ -25,41 +25,15 @@
         }
       );
 
-      packages = forEachSystem (system: {
-        pulp-riscv-gnu-toolchain =
-          let
-            base = inputs.pulpissimo.packages.${system}.pulp-riscv-gnu-toolchain.override {
-              stdenv = self.pkgs.${system}.gcc9CcacheStdenv;
-            };
-          in
-          base.overrideAttrs {
-            configureFlags = [
-              "--with-arch=rv64gcv"
-              "--with-cmodel=medlow"
-              "--enable-multilib"
-            ];
-          };
-      });
+      packages = forEachSystem (system: { });
 
-      devShells = forEachSystem (
-        system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            config = { };
-            overlays = [ self.overlays.default ];
-          };
-        in
-        {
-          default = { };
-        }
-      );
+      devShells = forEachSystem (system: { });
 
       overlays.default = final: prev: {
         ccacheWrapper = prev.ccacheWrapper.override {
           extraConfig = ''
             export CCACHE_COMPRESS=1
-            export CCACHE_DIR=/nix/var/cache/ccache
+            export CCACHE_DIR=/var/cache/ccache
             export CCACHE_UMASK=007
           '';
         };
