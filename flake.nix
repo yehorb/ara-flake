@@ -25,16 +25,22 @@
         }
       );
 
-      packages = forEachSystem (system: {
-        riscv-gnu-toolchain-source = self.pkgs.${system}.fetchgit {
-          url = "https://github.com/riscv-collab/riscv-gnu-toolchain";
-          rev = "a33dac0251d17a7b74d99bd8fd401bfce87d2aed";
-          hash = "sha256-aCCjuQreHThX9UwaObvx8HS60TOxf8codqJRJhThxe8=";
-          fetchSubmodules = true;
-        };
-      });
+      packages = forEachSystem (system: { });
 
-      devShells = forEachSystem (system: { });
+      devShells = forEachSystem (system: {
+        default =
+          let
+            pkgs = self.pkgs.${system};
+            pkgsCross = import nixpkgs {
+              inherit system;
+              crossSystem = nixpkgs.lib.systems.examples.riscv64-embedded;
+              config = { };
+              overlays = [ self.overlays.default ];
+            };
+            stdenvCross = pkgsCross.clangStdenv;
+          in
+          pkgsCross.mkShell.override { stdenv = stdenvCross; } { };
+      });
 
       overlays.default = final: prev: {
         ccacheWrapper = prev.ccacheWrapper.override {
@@ -44,7 +50,6 @@
             export CCACHE_UMASK=007
           '';
         };
-        gcc9CcacheStdenv = final.ccacheStdenv.override { stdenv = prev.gcc9Stdenv; };
       };
     };
 }
