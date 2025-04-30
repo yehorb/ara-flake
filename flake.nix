@@ -13,6 +13,10 @@
     }@inputs:
     let
       forEachSystem = nixpkgs.lib.genAttrs (import systems);
+      crossSystem = nixpkgs.lib.systems.examples.riscv64-embedded // {
+        useLLVM = true;
+        isStatic = true;
+      };
     in
     {
       pkgs = forEachSystem (
@@ -30,7 +34,6 @@
         default =
           let
             pkgs = self.pkgs.${system};
-            crossSystem = nixpkgs.lib.systems.examples.riscv64-embedded;
             pkgsCross = import nixpkgs {
               inherit system;
               inherit crossSystem;
