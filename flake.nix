@@ -25,7 +25,14 @@
         }
       );
 
-      packages = forEachSystem (system: { });
+      packages = forEachSystem (system: {
+        riscv-gnu-toolchain-source = self.pkgs.${system}.fetchgit {
+          url = "https://github.com/riscv-collab/riscv-gnu-toolchain";
+          rev = "a33dac0251d17a7b74d99bd8fd401bfce87d2aed";
+          hash = "sha256-aCCjuQreHThX9UwaObvx8HS60TOxf8codqJRJhThxe8=";
+          fetchSubmodules = true;
+        };
+      });
 
       devShells = forEachSystem (system: { });
 
