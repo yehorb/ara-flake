@@ -1,7 +1,6 @@
 {
   inputs = {
-    pulpissimo.url = "github:yehorb/pulpissimo-flake";
-    nixpkgs.follows = "pulpissimo/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/default";
   };
 
