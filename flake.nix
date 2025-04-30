@@ -42,9 +42,10 @@
         default =
           let
             pkgs = self.pkgs.${system};
-            stdenvCross = pkgsCross.clangStdenv;
+            pkgsCross = self.pkgsCross.${system};
+            stdenvCross = pkgsCross.stdenv;
           in
-          pkgsCross.mkShell.override { stdenv = stdenvCross; } {
+          pkgsCross.mkShell {
             hardeningDisable = [ "all" ];
             env = {
               RISCV_TARGET = crossSystem.config;
