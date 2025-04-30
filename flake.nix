@@ -33,6 +33,7 @@
           inherit system;
           inherit crossSystem;
           config = { };
+          crossOverlays = [ self.overlays.cross ];
         }
       );
 
@@ -71,6 +72,18 @@
             export CCACHE_DIR=/var/cache/ccache
             export CCACHE_UMASK=007
           '';
+        };
+      };
+      overlays.cross = final: prev: {
+        llvmPackages = prev.llvmPackages // {
+          libunwind = prev.llvmPackages.libunwind.override {
+            devExtraCmakeFlags = [
+              (final.lib.cmakeFeature "LLVM_HOST_TRIPLE" crossSystem.config)
+              (final.lib.cmakeFeature "LLVM_DEFAULT_TARGET_TRIPLE" crossSystem.config)
+              (final.lib.cmakeBool "LIBUNWIND_IS_BAREMETAL" true)
+              (final.lib.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
+            ];
+          };
         };
       };
     };
