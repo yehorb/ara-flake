@@ -32,7 +32,9 @@
         import nixpkgs {
           inherit system;
           inherit crossSystem;
-          config = { };
+          config = {
+            replaceCrossStdenv = { buildPackages, baseStdenv }: baseStdenv;
+          };
           crossOverlays = [ self.overlays.cross ];
         }
       );
