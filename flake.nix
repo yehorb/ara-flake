@@ -27,6 +27,14 @@
           overlays = [ self.overlays.default ];
         }
       );
+      pkgsCross = forEachSystem (
+        system:
+        import nixpkgs {
+          inherit system;
+          inherit crossSystem;
+          config = { };
+        }
+      );
 
       packages = forEachSystem (system: { });
 
@@ -34,12 +42,6 @@
         default =
           let
             pkgs = self.pkgs.${system};
-            pkgsCross = import nixpkgs {
-              inherit system;
-              inherit crossSystem;
-              config = { };
-              overlays = [ self.overlays.default ];
-            };
             stdenvCross = pkgsCross.clangStdenv;
           in
           pkgsCross.mkShell.override { stdenv = stdenvCross; } {
