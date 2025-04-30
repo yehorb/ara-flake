@@ -1,3 +1,4 @@
 result
 .nix-profile*
 .direnv*
+pulp-platform
