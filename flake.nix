@@ -39,9 +39,22 @@
         }
       );
 
-      packages = forEachSystem (system: {
-        libunwind = self.pkgsCross.${system}.llvmPackages.libunwind;
-      });
+      packages = forEachSystem (
+        system:
+        let
+          pkgs = self.pkgsCross.${system};
+        in
+        {
+          libunwind = pkgs.llvmPackages.libraries.libunwind.override {
+            devExtraCmakeFlags = [
+              (pkgs.lib.cmakeFeature "LLVM_HOST_TRIPLE" crossSystem.config)
+              (pkgs.lib.cmakeFeature "LLVM_DEFAULT_TARGET_TRIPLE" crossSystem.config)
+              (pkgs.lib.cmakeBool "LIBUNWIND_IS_BAREMETAL" true)
+              (pkgs.lib.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
+            ];
+          };
+        }
+      );
 
       devShells = forEachSystem (system: {
         default =
@@ -76,17 +89,6 @@
           '';
         };
       };
-      overlays.cross = final: prev: {
-        llvmPackages = prev.llvmPackages // {
-          libunwind = prev.llvmPackages.libunwind.override {
-            devExtraCmakeFlags = [
-              (final.lib.cmakeFeature "LLVM_HOST_TRIPLE" crossSystem.config)
-              (final.lib.cmakeFeature "LLVM_DEFAULT_TARGET_TRIPLE" crossSystem.config)
-              (final.lib.cmakeBool "LIBUNWIND_IS_BAREMETAL" true)
-              (final.lib.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
-            ];
-          };
-        };
-      };
+      overlays.cross = final: prev: { };
     };
 }
