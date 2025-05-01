@@ -32,15 +32,13 @@
         import nixpkgs {
           inherit system;
           inherit crossSystem;
-          config = {
-            replaceCrossStdenv = { buildPackages, baseStdenv }: baseStdenv;
-          };
-          crossOverlays = [ self.overlays.cross ];
+          overlays = [ self.overlays.cross ];
         }
       );
 
       packages = forEachSystem (system: {
         libunwind = self.pkgsCross.${system}.llvmPackages.libunwind;
+        cc = self.pkgsCross.${system}.stdenv.cc;
       });
 
       devShells = forEachSystem (system: {
@@ -76,9 +74,10 @@
           '';
         };
       };
-      overlays.cross = final: prev: {
-        llvmPackages = prev.llvmPackages // {
-          libunwind = prev.llvmPackages.libunwind.override {
+      overlays.cross =
+        final: prev:
+        let
+          libunwind = prev.llvmPackages.libraries.libunwind.override {
             devExtraCmakeFlags = [
               (final.lib.cmakeFeature "LLVM_HOST_TRIPLE" crossSystem.config)
               (final.lib.cmakeFeature "LLVM_DEFAULT_TARGET_TRIPLE" crossSystem.config)
@@ -86,7 +85,13 @@
               (final.lib.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
             ];
           };
+        in
+        {
+          llvmPackages = prev.llvmPackages.override {
+            targetLlvmLibraries = prev.llvmPackages.libraries // {
+              inherit libunwind;
+            };
+          };
         };
-      };
     };
 }
