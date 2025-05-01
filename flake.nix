@@ -37,7 +37,6 @@
       );
 
       packages = forEachSystem (system: {
-        libunwind = self.pkgsCross.${system}.llvmPackages.libunwind;
         cc = self.pkgsCross.${system}.stdenv.cc;
       });
 
@@ -79,12 +78,27 @@
         let
           libunwind = prev.llvmPackages.libraries.libunwind.override {
             devExtraCmakeFlags = [
-              (final.lib.cmakeFeature "LLVM_HOST_TRIPLE" crossSystem.config)
-              (final.lib.cmakeFeature "LLVM_DEFAULT_TARGET_TRIPLE" crossSystem.config)
-              (final.lib.cmakeBool "LIBUNWIND_IS_BAREMETAL" true)
-              (final.lib.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
+              (final.lib.strings.cmakeBool "LIBUNWIND_IS_BAREMETAL" true)
+              (final.lib.strings.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
+              (final.lib.strings.cmakeFeature "LINK_FLAGS" "--script=${linkerScript}")
             ];
           };
+          linkerScript = final.writeText "libunwind.ld" ''
+            .eh_frame :
+            {
+                __eh_frame_start = .;
+                KEEP(*(.eh_frame))
+                __eh_frame_end = .;
+            }
+
+            .eh_frame_hdr :
+            {
+                KEEP(*(.eh_frame_hdr))
+            }
+
+            __eh_frame_hdr_start = SIZEOF(.eh_frame_hdr) > 0 ? ADDR(.eh_frame_hdr) : 0;
+            __eh_frame_hdr_end = SIZEOF(.eh_frame_hdr) > 0 ? . : 0;
+          '';
         in
         {
           llvmPackages = prev.llvmPackages.override {
