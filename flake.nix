@@ -13,7 +13,9 @@
     }@inputs:
     let
       forEachSystem = nixpkgs.lib.genAttrs (import systems);
-      crossSystem = nixpkgs.lib.systems.examples.riscv64-embedded // {
+      crossSystem = {
+        config = "riscv64-unknown-none-elf";
+        libc = "newlib";
         useLLVM = true;
         isStatic = true;
       };
@@ -22,29 +24,20 @@
       pkgs = forEachSystem (
         system:
         import nixpkgs {
-          inherit system;
+          localSystem = {
+            inherit system;
+          };
           config = { };
-          overlays = [ self.overlays.default ];
         }
       );
       pkgsCross = forEachSystem (
         system:
         import nixpkgs {
-          inherit system;
-          inherit crossSystem;
-          config = {
-            replaceCrossStdenv =
-              { baseStdenv, ... }:
-              baseStdenv.override (prevArgs: {
-                cc = prevArgs.cc.overrideAttrs {
-                  buildPhase = ''
-                    echo "mark" > $out/myMark
-                    echo "So, guys, we did it!" >> $out/nix-support/cc-cflags
-                  '';
-                };
-              });
+          localSystem = {
+            inherit system;
           };
-          overlays = [ self.overlays.cross ];
+          inherit crossSystem;
+          config = { };
         }
       );
 
@@ -53,7 +46,7 @@
           let
             pkgs = self.pkgs.${system};
             pkgsCross = self.pkgsCross.${system};
-            stdenvCross = pkgsCross.stdenv;
+            stdenv = pkgsCross.stdenv;
           in
           pkgsCross.mkShell {
             hardeningDisable = [ "all" ];
@@ -62,8 +55,8 @@
             ];
             env = {
               RISCV_TARGET = crossSystem.config;
-              LLVM_INSTALL_DIR = stdenvCross.cc;
-              RISCV_PREFIX = "${stdenvCross.cc}/bin/${crossSystem.config}-";
+              LLVM_INSTALL_DIR = stdenv.cc;
+              RISCV_PREFIX = "${stdenv.cc}/bin/";
               RISCV_SIM = pkgs.lib.meta.getExe' pkgs.spike "spike";
             };
             shellHook = ''
@@ -71,27 +64,5 @@
             '';
           };
       });
-
-      overlays.default = final: prev: {
-        ccacheWrapper = prev.ccacheWrapper.override {
-          extraConfig = ''
-            export CCACHE_COMPRESS=1
-            export CCACHE_DIR=/var/cache/ccache
-            export CCACHE_UMASK=007
-          '';
-        };
-      };
-      overlays.cross =
-        final: prev:
-        let
-          withLlvmTargetLibraries = prev.llvmPackages.override {
-            targetLlvmLibraries = prev.llvmPackages.libraries // {
-              libunwind = "";
-            };
-          };
-        in
-        {
-          llvmPackages = withLlvmTargetLibraries;
-        };
     };
 }
