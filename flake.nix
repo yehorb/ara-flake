@@ -38,6 +38,7 @@
           };
           inherit crossSystem;
           config = { };
+          stdenvStages = import ./pkgs/stdenv/cross;
         }
       );
 
