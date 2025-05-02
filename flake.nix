@@ -37,7 +37,9 @@
             inherit system;
           };
           inherit crossSystem;
-          config = { };
+          config = {
+            stdenvRoot = "${nixpkgs}/pkgs/stdenv";
+          };
           stdenvStages = import ./pkgs/stdenv/cross;
         }
       );

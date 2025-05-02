@@ -7,8 +7,36 @@
   crossOverlays ? [ ],
 }:
 
+# As the `../.` in the flake context does not actually lead to the
+# `pkgs/stdenv/default.nix`, we need to pass it as an argument, which actually
+# points to the relevant directory. So the whole initialization makes a detour
+# into this flake, and then returns to the `nixpkgs`
+#
+# ```text
+# +-------+                                               +---------------+                               +---------+
+# | flake |                                               | stdenvStages  |                               | nixpkgs |
+# +-------+                                               +---------------+                               +---------+
+#     |                                                           |                                            |
+#     | The location of the nixpkgs/pkgs/stdenv directory         |                                            |
+#     |---------------------------------------------------------->|                                            |
+#     |                                                           |                                            |
+#     | import nixpkgs { config = { ... } }                       |                                            |
+#     |------------------------------------------------------------------------------------------------------->|
+#     |                                                           |                                            |
+#     |                                                           |                  Use provided stdenvStages |
+#     |                                                           |<-------------------------------------------|
+#     |                                                           |                                            |
+#     |                                                           | Use the nixpkgs/pkgs/stdenv directory      |
+#     |                                                           |------------------------------------------->|
+#     |                                                           |                                            |
+#     |                                                          nixpkgs initialized using custom stdenvStages |
+#     |<-------------------------------------------------------------------------------------------------------|
+#     |                                                           |                                            |
+# ```
+
 let
-  bootStages = import ../. {
+  # config.stdenvRoot is the location of the `pkgs/stdenv` directory
+  bootStages = import config.stdenvRoot {
     inherit lib localSystem overlays;
 
     crossSystem = localSystem;
@@ -32,6 +60,15 @@ lib.init bootStages
       allowCustomOverrides = true;
     }
   )
+
+  # NEW STAGE: Complete build-platform toolchain
+  # This ensures we have a complete native toolchain before building cross compiler
+  (nativePkgs: {
+    inherit config overlays;
+    selfBuild = true; # This is still building for the build platform
+    stdenv = nativePkgs.stdenv; # Use standard environment unchanged
+    allowCustomOverrides = true;
+  })
 
   # Build tool Packages
   (vanillaPackages: {
