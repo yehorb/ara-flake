@@ -54,16 +54,18 @@
         }
       );
 
-      devShells = forEachSystem (system: {
-        default =
-          let
-            pkgs = self.pkgs.${system};
-            pkgsCross = self.pkgsCross.${system};
-          in
-          pkgsCross.mkShell {
+      devShells = forEachSystem (
+        system:
+        let
+          pkgs = self.pkgs.${system};
+          pkgsCross = self.pkgsCross.${system};
+        in
+        {
+          default = pkgsCross.mkShell {
             hardeningDisable = [ "all" ];
             packages = [
               pkgs.spike
+              pkgs.verilator
               (pkgs.python312.withPackages (pythonPkgs: [ pythonPkgs.numpy ]))
             ];
             env = {
@@ -72,12 +74,27 @@
               RISCV_SIM = pkgs.lib.meta.getExe' pkgs.spike "spike";
             };
             shellHook = ''
-              export CC_LD="lld"
-              export CXX_LD="lld"
               export PS1="(ara) $PS1"
             '';
           };
-      });
+          compileHardware = pkgs.mkShell {
+            buildInputs = [
+              pkgs.verilator
+              pkgs.spike
+            ];
+            env = {
+              NIX_CFLAGS_COMPILE = pkgs.lib.strings.concatStringsSep " " [
+                "-I${pkgs.verilator}/share/verilator/include/vltstd"
+                "-I${pkgs.spike}/include"
+                "-std=c++17"
+              ];
+            };
+            shellHook = ''
+              export PS1="(ara-hardware) $PS1"
+            '';
+          };
+        }
+      );
 
       overlays.cross =
         final: prev:
