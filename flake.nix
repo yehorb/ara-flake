@@ -37,7 +37,19 @@
             inherit system;
           };
           inherit crossSystem;
-          config = { };
+          config = {
+            replaceCrossStdenv =
+              { buildPackages, baseStdenv }:
+              let
+                withExtraBuildTools = baseStdenv.override (oldArgs: {
+                  extraNativeBuildInputs = oldArgs.extraNativeBuildInputs ++ [
+                    buildPackages.llvmPackages.bintoolsNoLibc
+                  ];
+                });
+                withBasicCC = buildPackages.overrideCC withExtraBuildTools buildPackages.llvmPackages.clangWithLibcAndBasicRt;
+              in
+              withBasicCC;
+          };
         }
       );
 
@@ -46,7 +58,6 @@
           let
             pkgs = self.pkgs.${system};
             pkgsCross = self.pkgsCross.${system};
-            stdenv = pkgsCross.stdenv;
           in
           pkgsCross.mkShell {
             hardeningDisable = [ "all" ];
@@ -55,8 +66,7 @@
             ];
             env = {
               RISCV_TARGET = crossSystem.config;
-              LLVM_INSTALL_DIR = stdenv.cc;
-              RISCV_PREFIX = "${stdenv.cc}/bin/";
+              RISCV_PREFIX = "${crossSystem.config}-";
               RISCV_SIM = pkgs.lib.meta.getExe' pkgs.spike "spike";
             };
             shellHook = ''
@@ -64,5 +74,23 @@
             '';
           };
       });
+
+      overlays.cross =
+        final: prev:
+        let
+          libunwind = prev.llvmPackages.libraries.libunwind.override {
+            devExtraCmakeFlags = [
+              (final.lib.strings.cmakeBool "LIBUNWIND_IS_BAREMETAL" true)
+              (final.lib.strings.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
+            ];
+          };
+        in
+        {
+          llvmPackages = prev.llvmPackages.override {
+            targetLlvmLibraries = prev.llvmPackages.libraries // {
+              inherit libunwind;
+            };
+          };
+        };
     };
 }
