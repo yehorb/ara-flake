@@ -16,9 +16,61 @@
         "type": "github"
       }
     },
+    "nixpkgs-semver_2_13": {
+      "locked": {
+        "lastModified": 1616660301,
+        "narHash": "sha256-xilZzwijuplxa04krMBsvDwEAsXkvGpDrLSmv3LxSdo=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "92a955754d197a5161ab4c3ce5193b4c4eb1edcc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "92a955754d197a5161ab4c3ce5193b4c4eb1edcc",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1745930157,
+        "narHash": "sha256-y3h3NLnzRSiUkYpnfvnS669zWZLoqqI6NprtLQ+5dck=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "46e634be05ce9dc6d4db8e664515ba10b78151ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "pulpissimo": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2",
+        "nixpkgs-semver_2_13": "nixpkgs-semver_2_13"
+      },
+      "locked": {
+        "lastModified": 1746205145,
+        "narHash": "sha256-Ur8jYK53ej3IJptHbdYksZAOrddEu1W+BJppJDiLtw0=",
+        "owner": "yehorb",
+        "repo": "pulpissimo-flake",
+        "rev": "866ce77d7821804a39a6d948911655dd40972b1d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yehorb",
+        "repo": "pulpissimo-flake",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "pulpissimo": "pulpissimo",
         "systems": "systems"
       }
     },

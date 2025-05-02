@@ -2,6 +2,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/default";
+    pulpissimo.url = "github:yehorb/pulpissimo-flake";
   };
 
   outputs =
@@ -78,23 +79,29 @@
               export PS1="(ara) $PS1"
             '';
           };
-          compileHardware = pkgs.mkShell {
-            buildInputs = [
-              pkgs.verilator
-              pkgs.spike
-            ];
-            env = {
-              NIX_CFLAGS_COMPILE = pkgs.lib.strings.concatStringsSep " " [
-                "-I${pkgs.verilator}/share/verilator/include/vltstd"
-                "-I${pkgs.spike}/include"
-                "-std=c++17"
+          compileHardware =
+            let
+              bender = inputs.pulpissimo.packages.${system}.bender;
+            in
+            pkgs.mkShell {
+              buildInputs = [
+                pkgs.verilator
+                pkgs.spike
               ];
-              questa_cmd = "true;";
+              packages = [ bender ];
+              env = {
+                NIX_CFLAGS_COMPILE = pkgs.lib.strings.concatStringsSep " " [
+                  "-I${pkgs.verilator}/share/verilator/include/vltstd"
+                  "-I${pkgs.spike}/include"
+                  "-std=c++17"
+                ];
+                questa_cmd = "true;";
+                BENDER = pkgs.lib.meta.getExe bender;
+              };
+              shellHook = ''
+                export PS1="(ara-hardware) $PS1"
+              '';
             };
-            shellHook = ''
-              export PS1="(ara-hardware) $PS1"
-            '';
-          };
         }
       );
 
