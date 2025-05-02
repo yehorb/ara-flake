@@ -63,6 +63,7 @@
             hardeningDisable = [ "all" ];
             packages = [
               pkgs.spike
+              (pkgs.python312.withPackages (pythonPkgs: [ pythonPkgs.numpy ]))
             ];
             env = {
               RISCV_TARGET = crossSystem.config;
