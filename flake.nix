@@ -89,7 +89,12 @@
                 pkgs.spike
                 stdenv.cc.libc_lib
               ];
-              packages = [ bender ];
+              packages = [
+                bender
+                (pkgs.writeShellScriptBin "setDpiCppPath" ''
+                  ${pkgs.lib.meta.getExe pkgs.gnused} -i.bak "s#^; DpiCppPath =.*#DpiCppPath = ${pkgs.lib.meta.getExe stdenv.cc}#" build/modelsim.ini
+                '')
+              ];
               env = {
                 NIX_CFLAGS_COMPILE = pkgs.lib.strings.concatStringsSep " " [
                   "-I${pkgs.verilator}/share/verilator/include/vltstd"

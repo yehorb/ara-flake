@@ -1,0 +1,22 @@
+diff --git a/hardware/Makefile b/hardware/Makefile
+index 0625fcc..f8be76f 100644
+--- a/hardware/Makefile
++++ b/hardware/Makefile
+@@ -113,8 +113,7 @@ $(buildpath):
+ 
+ # Bender
+ bender:
+-	@[ -x ./bender ] && echo "Bender already exists." || \
+-	curl --proto '=https' --tlsv1.2 https://fabianschuiki.github.io/bender/init -sSf | sh	-s -- 0.23.1
++	ln -sf $(BENDER) ./bender
+ 	@echo "$$(./bender --version) available."
+ 
+ # Patches
+@@ -135,6 +134,7 @@ $(buildpath)/compile_$(config).tcl: $(config_file) Makefile ../Bender.yml $(shel
+ 	./bender script vsim --vlog-arg="$(vlog_args)" -t rtl -t asic -t ara_test -t cva6_test $(bender_defs) > $(buildpath)/compile_$(config).tcl
+ 	echo "exit" >> $(buildpath)/compile_$(config).tcl
+ 	cd $(buildpath) && $(questa_cmd) vsim -work $(library) -c -do compile_$(config).tcl
++	setDpiCppPath
+ 	# Remove the file if compilation did not succeed
+ 	if [ `cat $(buildpath)/transcript | grep "\*\* Error" | wc -l` -ne 0 ]; then rm $(buildpath)/compile_$(config).tcl; fi
+ 
