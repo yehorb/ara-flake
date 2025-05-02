@@ -44,7 +44,6 @@
               let
                 withExtraBuildTools = baseStdenv.override (oldArgs: {
                   extraNativeBuildInputs = oldArgs.extraNativeBuildInputs ++ [
-                    buildPackages.llvmPackages.lld
                     buildPackages.llvmPackages.bintoolsNoLibc
                   ];
                 });
@@ -66,7 +65,6 @@
             hardeningDisable = [ "all" ];
             packages = [
               pkgs.spike
-              pkgs.verilator
               (pkgs.python312.withPackages (pythonPkgs: [ pythonPkgs.numpy ]))
             ];
             env = {
