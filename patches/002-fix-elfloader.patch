@@ -1,0 +1,24 @@
+diff --git a/tb/dpi/elfloader.cc b/tb/dpi/elfloader.cc
+index 2aa1dfb14..2d2715e08 100644
+--- a/tb/dpi/elfloader.cc
++++ b/tb/dpi/elfloader.cc
+@@ -49,14 +49,18 @@ extern "C" char get_section (long long* address, long long* len) {
+     } else return 0;
+ }
+ 
+-extern "C" char read_section (long long address, const svOpenArrayHandle buffer) {
++extern "C" char read_section (long long address, svOpenArrayHandle buffer) {
+     // get actual poitner
+     void* buf = svGetArrayPtr(buffer);
++    int size = svSize(buffer, 1);
+     // check that the address points to a section
+     assert(mems.count(address) > 0);
+     // copy array
+     int i = 0;
+     for (auto &datum : mems.find(address)->second) {
++      if (i >= size) {
++        return 1;
++      }
+       *((char *) buf + i) = datum;
+       i++;
+     }
