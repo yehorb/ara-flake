@@ -14,4 +14,4 @@ hardware-deps: $(ARA_DIRECTORY)
 # If the `questa_cmd` is not found or empty, the Makefile produces a warning.
 # `true;` is essentially a noop.
 compile-hardware:
-	nix develop .#compileHardware --print-build-logs --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile questa_cmd='true;'"
+	nix develop .#compileHardware --print-build-logs --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"

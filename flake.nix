@@ -72,6 +72,7 @@
               RISCV_TARGET = crossSystem.config;
               RISCV_PREFIX = "${crossSystem.config}-";
               RISCV_SIM = pkgs.lib.meta.getExe' pkgs.spike "spike";
+              questa_cmd = "true;";
             };
             shellHook = ''
               export PS1="(ara) $PS1"
@@ -88,6 +89,7 @@
                 "-I${pkgs.spike}/include"
                 "-std=c++17"
               ];
+              questa_cmd = "true;";
             };
             shellHook = ''
               export PS1="(ara-hardware) $PS1"
