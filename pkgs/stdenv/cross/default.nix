@@ -46,7 +46,10 @@ let
     # Use replaceCrossStdenv instead.
     config = builtins.removeAttrs config [ "replaceStdenv" ];
   };
-
+  llvmSystem = localSystem // {
+    useLLVM = true;
+    linker = "lld";
+  };
 in
 lib.init bootStages
 ++ [
@@ -61,24 +64,31 @@ lib.init bootStages
     }
   )
 
-  # NEW STAGE: Complete build-platform toolchain
-  # This ensures we have a complete native toolchain before building cross compiler
-  (nativePkgs: {
-    inherit config overlays;
-    selfBuild = true; # This is still building for the build platform
-    stdenv = nativePkgs.stdenv; # Use standard environment unchanged
-    allowCustomOverrides = true;
-  })
+  # Inject LLVM build environment to build Build tool Packages with
+  (
+    nativePkgs:
+    let
+    in
+    {
+      inherit config overlays;
+      selfBuild = true; # Target build platform
+      stdenv =
+        assert nativePkgs.stdenv.buildPlatform == localSystem;
+        assert nativePkgs.stdenv.hostPlatform == localSystem;
+        assert nativePkgs.stdenv.targetPlatform == localSystem;
+        nativePkgs.stdenv.override {
+          buildPlatform = llvmSystem;
+          hostPlatform = llvmSystem;
+          targetPlatform = llvmSystem;
+        };
+    }
+  )
 
   # Build tool Packages
   (vanillaPackages: {
     inherit config overlays;
     selfBuild = false;
-    stdenv =
-      assert vanillaPackages.stdenv.buildPlatform == localSystem;
-      assert vanillaPackages.stdenv.hostPlatform == localSystem;
-      assert vanillaPackages.stdenv.targetPlatform == localSystem;
-      vanillaPackages.stdenv.override { targetPlatform = crossSystem; };
+    stdenv = vanillaPackages.stdenv.override { targetPlatform = crossSystem; };
     # It's OK to change the built-time dependencies
     allowCustomOverrides = true;
   })
@@ -90,7 +100,7 @@ lib.init bootStages
       adaptStdenv = if crossSystem.isStatic then buildPackages.stdenvAdapters.makeStatic else lib.id;
       stdenvNoCC = adaptStdenv (
         buildPackages.stdenv.override (old: rec {
-          buildPlatform = localSystem;
+          buildPlatform = llvmSystem;
           hostPlatform = crossSystem;
           targetPlatform = crossSystem;
 
