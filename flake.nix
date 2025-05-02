@@ -83,10 +83,11 @@
             let
               bender = inputs.pulpissimo.packages.${system}.bender;
             in
-            pkgs.mkShell {
+            pkgs.mkShell.override { stdenv = pkgs.gcc10Stdenv; } {
               buildInputs = [
                 pkgs.verilator
                 pkgs.spike
+                pkgs.gcc10Stdenv.cc.libc_lib
               ];
               packages = [ bender ];
               env = {
@@ -95,8 +96,8 @@
                   "-I${pkgs.spike}/include"
                   "-std=c++17"
                 ];
+                LDFLAGS = "-L${pkgs.gcc10Stdenv.cc.libc_lib}/lib";
                 questa_cmd = "true;";
-                BENDER = pkgs.lib.meta.getExe bender;
               };
               shellHook = ''
                 export PS1="(ara-hardware) $PS1"
