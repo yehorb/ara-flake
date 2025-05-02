@@ -82,12 +82,14 @@
           compileHardware =
             let
               bender = inputs.pulpissimo.packages.${system}.bender;
+              stdenv = pkgs.gcc10Stdenv;
             in
-            pkgs.mkShell.override { stdenv = pkgs.gcc10Stdenv; } {
+            pkgs.mkShell.override { inherit stdenv; } {
+              hardeningDisable = [ "all" ];
               buildInputs = [
                 pkgs.verilator
                 pkgs.spike
-                pkgs.gcc10Stdenv.cc.libc_lib
+                stdenv.cc.libc_lib
               ];
               packages = [ bender ];
               env = {
@@ -96,7 +98,7 @@
                   "-I${pkgs.spike}/include"
                   "-std=c++17"
                 ];
-                LDFLAGS = "-L${pkgs.gcc10Stdenv.cc.libc_lib}/lib";
+                LDFLAGS = "-L${stdenv.cc.libc_lib}/lib";
                 questa_cmd = "true;";
               };
               shellHook = ''
