@@ -97,6 +97,7 @@
                   "-std=c++17"
                 ];
                 LDFLAGS = "-L${stdenv.cc.libc_lib}/lib";
+                BENDER = pkgs.lib.meta.getExe bender;
                 questa_cmd = "true;";
               };
               shellHook = ''
