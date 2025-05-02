@@ -43,6 +43,7 @@
               let
                 withExtraBuildTools = baseStdenv.override (oldArgs: {
                   extraNativeBuildInputs = oldArgs.extraNativeBuildInputs ++ [
+                    buildPackages.llvmPackages.lld
                     buildPackages.llvmPackages.bintoolsNoLibc
                   ];
                 });
@@ -71,6 +72,8 @@
               RISCV_SIM = pkgs.lib.meta.getExe' pkgs.spike "spike";
             };
             shellHook = ''
+              export CC_LD="lld"
+              export CXX_LD="lld"
               export PS1="(ara) $PS1"
             '';
           };
