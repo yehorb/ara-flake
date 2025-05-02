@@ -23,8 +23,8 @@ make bin/hello_world
 ### Preparation
 
 ```bash
-cd pulp-platform/ara/
-cd hardware/
+nix develop .#compileHardware
+cd pulp-platform/ara/hardware/
 make apply-patches
 make compile
 ```
@@ -32,5 +32,7 @@ make compile
 ### Simulation
 
 ```bash
+nix develop .#compileHardware
+cd pulp-platform/ara/hardware/
 app=hello_world questa_args="-suppress 8386,7033,3009 -ldflags $LDFLAGS" make simc
 ```
