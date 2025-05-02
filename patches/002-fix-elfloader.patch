@@ -1,7 +1,7 @@
-diff --git a/tb/dpi/elfloader.cc b/tb/dpi/elfloader.cc
+diff --git a/hardware/deps/cva6/tb/dpi/elfloader.cc b/hardware/deps/cva6/tb/dpi/elfloader.cc
 index 2aa1dfb14..2d2715e08 100644
---- a/tb/dpi/elfloader.cc
-+++ b/tb/dpi/elfloader.cc
+--- a/hardware/deps/cva6/tb/dpi/elfloader.cc
++++ b/hardware/deps/cva6/tb/dpi/elfloader.cc
 @@ -49,14 +49,18 @@ extern "C" char get_section (long long* address, long long* len) {
      } else return 0;
  }
