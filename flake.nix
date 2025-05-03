@@ -109,23 +109,5 @@
             };
         }
       );
-
-      overlays.cross =
-        final: prev:
-        let
-          libunwind = prev.llvmPackages.libraries.libunwind.override {
-            devExtraCmakeFlags = [
-              (final.lib.strings.cmakeBool "LIBUNWIND_IS_BAREMETAL" true)
-              (final.lib.strings.cmakeBool "LIBUNWIND_ENABLE_THREADS" false)
-            ];
-          };
-        in
-        {
-          llvmPackages = prev.llvmPackages.override {
-            targetLlvmLibraries = prev.llvmPackages.libraries // {
-              inherit libunwind;
-            };
-          };
-        };
     };
 }
