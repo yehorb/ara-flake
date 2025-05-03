@@ -101,7 +101,7 @@
                 ];
                 BENDER = pkgs.lib.meta.getExe bender;
                 questa_cmd = "true;";
-                questa_args = "-cpppath ${pkgs.lib.meta.getExe stdenv.cc} -ldflags -L${stdenv.cc.libc_lib}/lib -suppress 8386,7033,3009";
+                questa_args = "-cpppath ${pkgs.lib.meta.getExe stdenv.cc} -suppress 8386,7033,3009";
               };
               shellHook = ''
                 export PS1="(ara-hardware) $PS1"
