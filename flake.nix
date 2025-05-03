@@ -61,7 +61,8 @@
           pkgsCross = self.pkgsCross.${system};
         in
         {
-          default = pkgsCross.mkShell {
+          default = self.devShells.${system}.compileSoftware;
+          compileSoftware = pkgsCross.mkShell {
             hardeningDisable = [ "all" ];
             packages = [
               pkgs.spike
@@ -91,9 +92,6 @@
               ];
               packages = [
                 bender
-                (pkgs.writeShellScriptBin "setDpiCppPath" ''
-                  ${pkgs.lib.meta.getExe pkgs.gnused} -i.bak "s#^; DpiCppPath =.*#DpiCppPath = ${pkgs.lib.meta.getExe stdenv.cc}#" build/modelsim.ini
-                '')
               ];
               env = {
                 NIX_CFLAGS_COMPILE = pkgs.lib.strings.concatStringsSep " " [
@@ -104,6 +102,9 @@
                 LDFLAGS = "-L${stdenv.cc.libc_lib}/lib";
                 BENDER = pkgs.lib.meta.getExe bender;
                 questa_cmd = "true;";
+                questa_args = "-modelsimini ${pkgs.writeText "modelsim.ini" ''
+                  DpiCppPath = ${pkgs.lib.meta.getExe stdenv.cc}
+                ''} -suppress 8386,7033,3009 -ldflags -L${stdenv.cc.libc_lib}/lib";
               };
               shellHook = ''
                 export PS1="(ara-hardware) $PS1"

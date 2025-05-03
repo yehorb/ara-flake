@@ -9,9 +9,24 @@ hardware-deps: $(ARA_DIRECTORY)
 	cd $(ARA_DIRECTORY); \
 		git submodule update --init --recursive -- hardware/deps
 
-# Setting the questa_cmd='true;' just suppresses the warning Makefile produces otherwise.
-# `vsim` is the following way - `$(questa_cmd) vsim -c ...`.
-# If the `questa_cmd` is not found or empty, the Makefile produces a warning.
-# `true;` is essentially a noop.
+prepare-hardware: $(ARA_DIRECTORY) hardware-deps
+	cd $(ARA_DIRECTORY); \
+		git apply ../../patches/*; \
+		cd deps/tech_cells_generic && git apply ../../patches/0001-tech-cells-generic-sram.patch
+
 compile-hardware:
-	nix develop .#compileHardware --print-build-logs --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"
+	nix develop .#compileHardware --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"
+
+app ?= bin/hello_world
+
+compile-software:
+	nix develop .#compileSoftware --command bash -c "cd $(ARA_DIRECTORY)/apps; make $(app)"
+
+simc:
+	nix develop .#compileHardware --command bash -c "cd $(ARA_DIRECTORY)/hardware; app=$(app) make simc"
+
+clean: $(ARA_DIRECTORY)
+	cd $(ARA_DIRECTORY); \
+		rm -rf hardware/deps/*; \
+		git clean . --force; \
+		git reset HEAD --hard
