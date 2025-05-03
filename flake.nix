@@ -99,12 +99,9 @@
                   "-I${pkgs.spike}/include"
                   "-std=c++17"
                 ];
-                LDFLAGS = "-L${stdenv.cc.libc_lib}/lib";
                 BENDER = pkgs.lib.meta.getExe bender;
                 questa_cmd = "true;";
-                questa_args = "-modelsimini ${pkgs.writeText "modelsim.ini" ''
-                  DpiCppPath = ${pkgs.lib.meta.getExe stdenv.cc}
-                ''} -suppress 8386,7033,3009 -ldflags -L${stdenv.cc.libc_lib}/lib";
+                questa_args = "-cpppath ${pkgs.lib.meta.getExe stdenv.cc} -ldflags -L${stdenv.cc.libc_lib}/lib -suppress 8386,7033,3009";
               };
               shellHook = ''
                 export PS1="(ara-hardware) $PS1"

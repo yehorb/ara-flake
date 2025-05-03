@@ -7,17 +7,18 @@ checkout: $(ARA_DIRECTORY)
 
 hardware-deps: $(ARA_DIRECTORY)
 	cd $(ARA_DIRECTORY); \
-		git submodule update --init --recursive -- hardware/deps
+	git submodule update --init --recursive -- hardware/deps
 
 prepare-hardware: $(ARA_DIRECTORY) hardware-deps
 	cd $(ARA_DIRECTORY); \
-		git apply ../../patches/*; \
-		cd deps/tech_cells_generic && git apply ../../patches/0001-tech-cells-generic-sram.patch
+	git apply ../../patches/*; \
+	cd hardware; \
+	cd deps/tech_cells_generic && git apply ../../patches/0001-tech-cells-generic-sram.patch
 
 compile-hardware:
 	nix develop .#compileHardware --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"
 
-app ?= bin/hello_world
+app ?= hello_world
 
 compile-software:
 	nix develop .#compileSoftware --command bash -c "cd $(ARA_DIRECTORY)/apps; make $(app)"
@@ -27,6 +28,7 @@ simc:
 
 clean: $(ARA_DIRECTORY)
 	cd $(ARA_DIRECTORY); \
-		rm -rf hardware/deps/*; \
-		git clean . --force; \
-		git reset HEAD --hard
+	rm -rf hardware/deps/*; \
+	rm -rf hardware/build/*; \
+	git clean . --force; \
+	git reset HEAD --hard
