@@ -111,7 +111,7 @@
           verilator =
             let
               # Grab an older version of Verilator, as the current one has breaking changes
-              verilator_5_012 =
+              verilator =
                 (import inputs.nixpkgs-verilator_5_012 {
                   localSystem = {
                     inherit system;
@@ -119,25 +119,6 @@
                   config = { };
                 }).verilator;
               stdenv = pkgs.llvmPackages.stdenv;
-              # A thin wrapper that just places binaries into the expected path
-              verilator = stdenv.mkDerivation {
-                inherit (verilator_5_012) pname version meta;
-                phases = [ "installPhase" ];
-                installPhase = ''
-                  set -x
-                  runHook preInstall
-                  mkdir -p $out/
-                  # Copy the original Verilator files
-                  cp --no-preserve=mode,ownership --recursive ${verilator_5_012}/* $out/
-                  # Change references to old /nix/store/ path to the current one in all text files
-                  find $out/ -type f -exec grep -Iq . {} \; -print0 | xargs -0 sed -i "s#${verilator_5_012}#$out#g"
-                  # Place binaries into the expected path
-                  cp $out/bin/* $out/share/verilator/
-                  # Make binaries executable
-                  chmod -R +x $out/bin $out/share/verilator
-                  runHook postInstall
-                '';
-              };
             in
             pkgs.mkShell.override { inherit stdenv; } {
               hardeningDisable = [ "all" ];
@@ -149,6 +130,7 @@
                 BENDER = pkgs.lib.meta.getExe bender;
                 questa_cmd = "true;";
                 veril_path = "${verilator}/bin";
+                # Make Verilator aware of Verilator? For some it does not work otherwise
                 VERILATOR_BIN = pkgs.lib.meta.getExe' verilator "verilator";
               };
               shellHook = ''
