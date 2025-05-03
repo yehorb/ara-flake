@@ -26,7 +26,7 @@ apps:
 simc:
 	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; app=$(app) make simc"
 
-.PHONY clean
+.PHONY: clean
 clean: $(ARA_DIRECTORY)
 	cd $(ARA_DIRECTORY); \
 	rm -rf hardware/deps/*; \
