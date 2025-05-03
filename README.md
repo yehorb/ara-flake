@@ -1,5 +1,11 @@
 # Ara
 
+## Nix : the package manager
+
+The environment for compilation and simulation is set up using the Nix package manager.
+
+Please refer to <https://nixos.org/download/> for installation instructions.
+
 ## One Line
 
 You can prepare and run the Questa RTL simulation in one command:
