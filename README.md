@@ -55,6 +55,16 @@ cd pulp-platform/ara/hardware/
 app=hello_world make simc
 ```
 
+### Verilator
+
+Verilator environment is available, but I was unable to compile the design, constantly getting out-of-memory errors.
+
+```bash
+nix dvelop .#verilator
+cd pulp-platform/ara/hardware/
+make verilate
+```
+
 ## Notes
 
 Setting the `questa_cmd='true;'` just suppresses the warning Makefile produces otherwise.
