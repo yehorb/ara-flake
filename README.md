@@ -1,5 +1,19 @@
 # Ara
 
+## One Line
+
+You can prepare and run the Questa RTL simulation in one command:
+
+```bash
+make clean prepare-hardware compile-hardware compile-software simc
+```
+
+To select the specific app set the `app=<name>` variable before `make` invocation:
+
+```bash
+app=dotproduct make clean prepare-hardware compile-hardware compile-software simc
+```
+
 ## Preparation
 
 ```bash
@@ -12,7 +26,7 @@ make prepare-hardware
 ## Build Applications
 
 ```bash
-nix develop .#
+nix develop .#compileSoftware
 cd pulp-platform/ara/apps/
 make bin/hello_world
 ```
@@ -33,7 +47,7 @@ make compile
 ```bash
 nix develop .#compileHardware
 cd pulp-platform/ara/hardware/
-app=hello_world questa_args="-suppress 8386,7033,3009 -ldflags $LDFLAGS" make simc
+app=hello_world make simc
 ```
 
 ## Notes
