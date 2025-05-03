@@ -5,27 +5,28 @@ $(ARA_DIRECTORY):
 
 checkout: $(ARA_DIRECTORY)
 
-hardware-deps: $(ARA_DIRECTORY)
+checkout-deps: $(ARA_DIRECTORY)
 	cd $(ARA_DIRECTORY); \
 	git submodule update --init --recursive -- hardware/deps
 
-prepare-hardware: $(ARA_DIRECTORY) hardware-deps
+apply-patches: $(ARA_DIRECTORY) checkout-deps
 	cd $(ARA_DIRECTORY); \
 	git apply ../../patches/*; \
 	cd hardware; \
 	cd deps/tech_cells_generic && git apply ../../patches/0001-tech-cells-generic-sram.patch
 
-compile-vsim:
+compile:
 	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"
 
 app ?= hello_world
 
-compile-software:
-	nix develop .#compileSoftware --command bash -c "cd $(ARA_DIRECTORY)/apps; make $(app)"
+apps:
+	nix develop .#apps --command bash -c "cd $(ARA_DIRECTORY)/apps; make $(app)"
 
 simc:
 	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; app=$(app) make simc"
 
+.PHONY clean
 clean: $(ARA_DIRECTORY)
 	cd $(ARA_DIRECTORY); \
 	rm -rf hardware/deps/*; \

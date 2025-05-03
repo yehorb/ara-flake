@@ -63,8 +63,8 @@
           bender = inputs.pulpissimo.packages.${system}.bender;
         in
         {
-          default = self.devShells.${system}.compileSoftware;
-          compileSoftware = pkgsCross.mkShell {
+          default = self.devShells.${system}.apps;
+          apps = pkgsCross.mkShell {
             hardeningDisable = [ "all" ];
             packages = [
               pkgs.spike

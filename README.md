@@ -11,13 +11,13 @@ Please refer to <https://nixos.org/download/> for installation instructions.
 You can prepare and run the Questa RTL simulation in one command:
 
 ```bash
-make clean prepare-hardware compile-hardware compile-software simc
+make clean checkout-deps apply-patches compile simc
 ```
 
 To select the specific app set the `app=<name>` variable before `make` invocation:
 
 ```bash
-app=dotproduct make clean prepare-hardware compile-hardware compile-software simc
+app=dotproduct make clean checkout-deps apply-patches compile simc
 ```
 
 ## Preparation
@@ -25,14 +25,14 @@ app=dotproduct make clean prepare-hardware compile-hardware compile-software sim
 ```bash
 rm -rf pulp-platform/
 make checkout
-make hardware-deps
-make prepare-hardware
+make checkout-deps
+make apply-patches
 ```
 
 ## Build Applications
 
 ```bash
-nix develop .#compileSoftware
+nix develop .#apps
 cd pulp-platform/ara/apps/
 make bin/hello_world
 ```
@@ -42,16 +42,15 @@ make bin/hello_world
 ### Preparation
 
 ```bash
-nix develop .#compileHardware
+nix develop .#vsim
 cd pulp-platform/ara/hardware/
-make apply-patches
 make compile
 ```
 
 ### Simulation
 
 ```bash
-nix develop .#compileHardware
+nix develop .#vsim
 cd pulp-platform/ara/hardware/
 app=hello_world make simc
 ```
