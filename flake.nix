@@ -3,6 +3,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/default";
     pulpissimo.url = "github:yehorb/pulpissimo-flake";
+    nixpkgs-verilator_5_012.url = "github:nixos/nixpkgs/9957cd48326fe8dbd52fdc50dd2502307f188b0d";
   };
 
   outputs =
@@ -59,6 +60,7 @@
         let
           pkgs = self.pkgs.${system};
           pkgsCross = self.pkgsCross.${system};
+          bender = inputs.pulpissimo.packages.${system}.bender;
         in
         {
           default = self.devShells.${system}.compileSoftware;
@@ -75,12 +77,11 @@
               questa_cmd = "true;";
             };
             shellHook = ''
-              export PS1="(ara) $PS1"
+              export PS1="(ara-cross) $PS1"
             '';
           };
-          compileHardware =
+          vsim =
             let
-              bender = inputs.pulpissimo.packages.${system}.bender;
               stdenv = pkgs.gcc10Stdenv;
             in
             pkgs.mkShell.override { inherit stdenv; } {
@@ -104,7 +105,54 @@
                 questa_args = "-cpppath ${pkgs.lib.meta.getExe stdenv.cc} -suppress 8386,7033,3009";
               };
               shellHook = ''
-                export PS1="(ara-hardware) $PS1"
+                export PS1="(ara-vsim) $PS1"
+              '';
+            };
+          verilator =
+            let
+              # Grab an older version of Verilator, as the current one has breaking changes
+              verilator_5_012 =
+                (import inputs.nixpkgs-verilator_5_012 {
+                  localSystem = {
+                    inherit system;
+                  };
+                  config = { };
+                }).verilator;
+              stdenv = pkgs.llvmPackages.stdenv;
+              # A thin wrapper that just places binaries into the expected path
+              verilator = stdenv.mkDerivation {
+                inherit (verilator_5_012) pname version meta;
+                phases = [ "installPhase" ];
+                installPhase = ''
+                  set -x
+                  runHook preInstall
+                  mkdir -p $out/
+                  # Copy the original Verilator files
+                  cp --no-preserve=mode,ownership --recursive ${verilator_5_012}/* $out/
+                  # Change references to old /nix/store/ path to the current one in all text files
+                  find $out/ -type f -exec grep -Iq . {} \; -print0 | xargs -0 sed -i "s#${verilator_5_012}#$out#g"
+                  # Place binaries into the expected path
+                  cp $out/bin/* $out/share/verilator/
+                  # Make binaries executable
+                  chmod -R +x $out/bin $out/share/verilator
+                  runHook postInstall
+                '';
+              };
+            in
+            pkgs.mkShell.override { inherit stdenv; } {
+              hardeningDisable = [ "all" ];
+              packages = [
+                bender
+                verilator
+              ];
+              env = {
+                BENDER = pkgs.lib.meta.getExe bender;
+                questa_cmd = "true;";
+                veril_path = "${verilator}/bin";
+                VERILATOR_BIN = pkgs.lib.meta.getExe' verilator "verilator";
+              };
+              shellHook = ''
+                export PS1="(ara-verilator) $PS1"
               '';
             };
         }

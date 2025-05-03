@@ -15,8 +15,8 @@ prepare-hardware: $(ARA_DIRECTORY) hardware-deps
 	cd hardware; \
 	cd deps/tech_cells_generic && git apply ../../patches/0001-tech-cells-generic-sram.patch
 
-compile-hardware:
-	nix develop .#compileHardware --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"
+compile-vsim:
+	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"
 
 app ?= hello_world
 
@@ -24,7 +24,7 @@ compile-software:
 	nix develop .#compileSoftware --command bash -c "cd $(ARA_DIRECTORY)/apps; make $(app)"
 
 simc:
-	nix develop .#compileHardware --command bash -c "cd $(ARA_DIRECTORY)/hardware; app=$(app) make simc"
+	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; app=$(app) make simc"
 
 clean: $(ARA_DIRECTORY)
 	cd $(ARA_DIRECTORY); \
