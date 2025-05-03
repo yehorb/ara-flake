@@ -11,13 +11,13 @@ Please refer to <https://nixos.org/download/> for installation instructions.
 You can prepare and run the Questa RTL simulation in one command:
 
 ```bash
-make clean checkout-deps apply-patches compile simc
+make clean checkout-deps apply-patches compile apps simc
 ```
 
 To select the specific app set the `app=<name>` variable before `make` invocation:
 
 ```bash
-app=dotproduct make clean checkout-deps apply-patches compile simc
+app=dotproduct make clean checkout-deps apply-patches compile apps simc
 ```
 
 ## Preparation
