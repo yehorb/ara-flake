@@ -57,12 +57,24 @@ app=hello_world make simc
 
 ### Verilator
 
-Verilator environment is available, but I was unable to compile the design, constantly getting out-of-memory errors.
+#### Preparation
 
 ```bash
 nix dvelop .#verilator
 cd pulp-platform/ara/hardware/
 make verilate
+```
+
+Or:
+
+```bash
+make clean checkout-deps apply-patches verilate
+```
+
+#### Simulation
+
+```bash
+app=dotproduct make apps simv
 ```
 
 ## Notes
