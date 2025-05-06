@@ -130,7 +130,7 @@
                 BENDER = pkgs.lib.meta.getExe bender;
                 questa_cmd = "true;";
                 veril_path = "${verilator}/bin";
-                # Make Verilator aware of Verilator? For some it does not work otherwise
+                # Make Verilator aware of Verilator? For some reason it does not work otherwise
                 VERILATOR_BIN = pkgs.lib.meta.getExe' verilator "verilator";
               };
               shellHook = ''
