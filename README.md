@@ -6,6 +6,8 @@ The environment for compilation and simulation is set up using the Nix package m
 
 Please refer to <https://nixos.org/download/> for installation instructions.
 
+You will also need to enable flakes. The `nix` command will notify you if flakes are not enabled. Please refer to <https://nixos.wiki/wiki/Flakes> for instructions.
+
 ## One Line
 
 You can prepare and run the Questa RTL simulation in one command:
