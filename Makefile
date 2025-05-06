@@ -18,16 +18,19 @@ apply-patches: $(ARA_DIRECTORY) checkout-deps
 compile:
 	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; make compile"
 
+verilate:
+	nix develop .#verilator --command bash -c "cd $(ARA_DIRECTORY)/hardware; make verilate"
+
 app ?= hello_world
 
 apps:
 	nix develop .#apps --command bash -c "cd $(ARA_DIRECTORY)/apps; make $(app)"
 
 simc:
-	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; app=$(app) make simc"
+	app=$(app) $(MAKE) -C $(ARA_DIRECTORY)/hardware simc
 
 simv:
-	nix develop .#vsim --command bash -c "cd $(ARA_DIRECTORY)/hardware; app=$(app) make simv"
+	app=$(app) $(MAKE) -C $(ARA_DIRECTORY)/hardware simv
 
 .PHONY: clean
 clean: $(ARA_DIRECTORY)
