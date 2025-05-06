@@ -118,10 +118,19 @@
                   };
                   config = { };
                 }).verilator;
-              stdenv = pkgs.llvmPackages.stdenv;
             in
-            pkgs.mkShell.override { inherit stdenv; } {
+            pkgs.mkShell {
               hardeningDisable = [ "all" ];
+              # For some reason, Verilator ignores the `--compiler clang` flag, so I use `gcc`
+              # environment by default. But still add `clang` just to be sure. Maybe I will
+              # figure it out somehow.
+              nativeBuildInputs = [
+                pkgs.llvmPackages.clang
+                pkgs.llvmPackages.bintools
+              ];
+              buildInputs = [
+                pkgs.elfutils
+              ];
               packages = [
                 bender
                 verilator
@@ -130,8 +139,16 @@
                 BENDER = pkgs.lib.meta.getExe bender;
                 questa_cmd = "true;";
                 veril_path = "${verilator}/bin";
-                # Make Verilator aware of Verilator? For some reason it does not work otherwise
-                VERILATOR_BIN = pkgs.lib.meta.getExe' verilator "verilator";
+                # This is a sort of a hack to make Verilator wrapper call Verilator properly.
+                # The file `$out/bin/verilator` calls `exec $out/bin/.verilator-wrapped`,
+                # which is a `perl` script, which searches for a file `verilator_bin`.
+                # For some reason, it does not use `verilator_bin` from the PATH, but tries
+                # to use the `$VERILATOR_ROOT/$VERILATOR_BIN` one. The following variables
+                # make it work correctly.
+                # The good fix will be to add a postInstall phase that moves executables to
+                # the correct place. But I don't want to trigger a rebuild of the Verilator.
+                VERILATOR_ROOT = "${verilator}/share/verilator";
+                VERILATOR_BIN = "../../bin/verilator_bin";
               };
               shellHook = ''
                 export PS1="(ara-verilator) $PS1"
