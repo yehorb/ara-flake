@@ -119,11 +119,14 @@
                   config = { };
                 }).verilator;
             in
+            # This version of Verilator ignores the `--compiler` and `$CXX` variable, and
+            # always uses `g++` due to an error in the project build files. It will not use
+            # `clang++`, except specifically overridden by using `make CXX=clang++`.
+            # I add `clang` as input to support this scenario, but it will not be used by
+            # default.
+            # https://github.com/verilator/verilator/issues/4549
             pkgs.mkShell {
               hardeningDisable = [ "all" ];
-              # For some reason, Verilator ignores the `--compiler clang` flag, so I use `gcc`
-              # environment by default. But still add `clang` just to be sure. Maybe I will
-              # figure it out somehow.
               nativeBuildInputs = [
                 pkgs.llvmPackages.clang
                 pkgs.llvmPackages.bintools
