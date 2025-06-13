@@ -121,17 +121,12 @@
                   };
                   config = { };
                 }).verilator;
+              clangStdenv = pkgs.llvmPackages.stdenv;
+              ccacheClangStdenv = pkgs.ccacheStdenv.override { stdenv = clangStdenv; };
             in
-            # This version of Verilator ignores the `--compiler` and `$CXX` variable, and
-            # always uses `g++` due to an error in the project build files. It will not use
-            # `clang++`, except specifically overridden by using `make CXX=clang++`.
-            # I add `clang` as input to support this scenario, but it will not be used by
-            # default.
-            # https://github.com/verilator/verilator/issues/4549
-            pkgs.mkShell {
+            pkgs.mkShell.override { stdenv = ccacheClangStdenv; } {
               hardeningDisable = [ "all" ];
               nativeBuildInputs = [
-                pkgs.llvmPackages.clang
                 pkgs.llvmPackages.bintools
               ];
               buildInputs = [
@@ -155,6 +150,16 @@
                 # the correct place. But I don't want to trigger a rebuild of the Verilator.
                 VERILATOR_ROOT = "${verilator}/share/verilator";
                 VERILATOR_BIN = "../../bin/verilator_bin";
+                # This version of Verilator ignores the `--compiler` and `$CXX` variable, and
+                # always uses `g++` due to an error in the project build files. It will not use
+                # `clang++`, except specifically overridden by using `make CXX=clang++`.
+                # https://github.com/verilator/verilator/issues/4549
+                # We force Verilator to use clang++.
+                # https://veripool.org/guide/latest/environment.html#cmdoption-arg-MAKEFLAGS
+                MAKEFLAGS = "CXX=clang++";
+                LD = "lld";
+                CC_LD = "lld";
+                CXX_LD = "lld";
               };
               shellHook = ''
                 export PS1="(ara-verilator) $PS1"
