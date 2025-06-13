@@ -128,7 +128,7 @@
             # I add `clang` as input to support this scenario, but it will not be used by
             # default.
             # https://github.com/verilator/verilator/issues/4549
-            pkgs.mkShell {
+            pkgs.mkShell.override { stdenv = pkgs.ccacheStdenv; } {
               hardeningDisable = [ "all" ];
               nativeBuildInputs = [
                 pkgs.llvmPackages.clang
