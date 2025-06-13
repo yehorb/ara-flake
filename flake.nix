@@ -30,6 +30,9 @@
             inherit system;
           };
           config = { };
+          overlays = [
+            (import ./flake/overlays/ccache.nix)
+          ];
         }
       );
       pkgsCross = forEachSystem (
